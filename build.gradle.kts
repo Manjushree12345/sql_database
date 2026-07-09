@@ -1,6 +1,7 @@
 plugins {
     java
     kotlin("jvm") version "2.2.0"
+    id("io.qameta.allure") version "4.1.0"
 }
 
 group = "org.sdet.testing.app"
@@ -11,7 +12,7 @@ repositories {
 }
 
 val cucumberVersion = "7.34.0"
-val allureVersion = "2.33.0"
+val allureVersion = "2.35.2"
 val extentVersion = "5.1.2"
 val extentCucumberAdapterVersion = "1.14.0"
 val slf4jVersion = "2.0.18"
@@ -24,6 +25,14 @@ val testcontainersVersion = "1.20.6"
 val flywayVersion = "12.10.0"
 val postgresqlVersion = "42.7.6"
 val mysqlVersion = "9.2.0"
+
+allure {
+    version.set("2.36.0")
+
+    adapter {
+        allureJavaVersion.set("2.35.2")
+    }
+}
 
 dependencies {
 
@@ -59,12 +68,11 @@ dependencies {
     // Allure
     testImplementation(platform("io.qameta.allure:allure-bom:$allureVersion"))
     testImplementation("io.qameta.allure:allure-cucumber7-jvm")
+    testImplementation("io.qameta.allure:allure-junit5")
 
     // Extent Reports
     testImplementation("com.aventstack:extentreports:$extentVersion")
-    testImplementation(
-        "tech.grasshopper:extentreports-cucumber7-adapter:$extentCucumberAdapterVersion"
-    )
+    testImplementation("tech.grasshopper:extentreports-cucumber7-adapter:$extentCucumberAdapterVersion")
 
     // Logging
     testImplementation("org.slf4j:slf4j-simple:$slf4jVersion")
@@ -83,6 +91,7 @@ tasks.test {
 
     if (System.getenv("CI") != null) {
         systemProperty("headless", "true")
+
         filter {
             includeTestsMatching("postgreSqlCon.OrderTest")
         }

@@ -2,24 +2,55 @@ name: Gradle CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches:
+      - master
+
   pull_request:
-    branches: [ main, master ]
+    branches:
+      - master
 
 jobs:
-  test:
-    runs-on: windows-latest
+  build:
+
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Check out repository
+
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 22
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '22'
-          cache: gradle
 
-      - name: Run tests
-        run: .\gradlew.bat test
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Run Tests
+        run: ./gradlew clean test
+
+      # Restore previous history (if available)
+      - name: Restore Allure History
+        run: |
+          mkdir -p build/allure-results/history
+          cp -r allure-report/history/* build/allure-results/history/ || true
+
+      # Generate Allure Report
+      - name: Generate Allure Report
+        uses: simple-elf/allure-report-action@master
+        with:
+          allure_results: build/allure-results
+          allure_report: build/allure-report
+          keep_reports: 20
+
+      # Upload report as artifact
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: build/allure-report
