@@ -12,7 +12,29 @@ class OrderTest {
                 .withQuantity(3)
                 .build();
 
-        assertEquals(3, order.getQuantity());
+        assertEquals(4, order.getQuantity());
+    }
+
+    @Test
+    void shouldCreateOrderWithCustomValues() {
+        Order order = OrderBuilder.anOrder()
+                .withSku("SKU-2")
+                .withStatus("PAID")
+                .build();
+
+        assertEquals("SKU-2", order.getSku());
+        assertEquals("PAID", order.getStatus());
+    }
+
+    @Test
+    void shouldCreateRefundedOrder() {
+        Order order = OrderBuilder.anOrder()
+                .withQuantity(2)
+                .withRefunded(true)
+                .build();
+
+        assertEquals(2, order.getQuantity());
+        assertEquals(true, order.isRefunded());
     }
 
     @Test
