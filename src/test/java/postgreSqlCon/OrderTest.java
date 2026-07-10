@@ -82,6 +82,14 @@ class OrderTest {
         assertEquals(0, order.getQuantity());
     }
 
+    // BROKEN
+    // BROKEN
+    @Test
+    void shouldShowBrokenStatus() {
+        throw new RuntimeException("Intentional exception for Allure Broken status");
+    }
+
+
     @Test
     void testDefectRefundedOrderStatus() {
         // DEFECT: Refunded orders should have status REFUNDED, not NEW
