@@ -70,4 +70,24 @@ class OrderTest {
 
         assertEquals("SKU-1", order.getSku());
     }
+
+    @Test
+    void testDefectNegativeQuantityNotValidated() {
+        // DEFECT: Order should not accept negative quantity
+        Order order = OrderBuilder.anOrder()
+                .withQuantity(-5)
+                .build();
+
+        assertEquals(0, order.getQuantity());
+    }
+
+    @Test
+    void testDefectRefundedOrderStatus() {
+        // DEFECT: Refunded orders should have status REFUNDED, not NEW
+        Order order = OrderBuilder.anOrder()
+                .withRefunded(true)
+                .build();
+
+        assertEquals("REFUNDED", order.getStatus());
+    }
 }
