@@ -20,7 +20,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Checkout gh-pages to preserve Allure history
+      # Checkout gh-pages branch for Allure history
       - name: Checkout gh-pages
         if: always()
         continue-on-error: true
@@ -38,7 +38,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Make gradlew Executable
+      - name: Make gradlew executable
         run: chmod +x ./gradlew
 
       - name: Run Tests
@@ -54,21 +54,33 @@ jobs:
           allure_history: allure-history
           keep_reports: 20
 
-      - name: Verify Allure Report
+      # Debug history (remove later if you want)
+      - name: Debug Allure History
         if: always()
         run: |
-          echo "Generated report files:"
-          ls -la build/allure-report
-          test -f build/allure-report/index.html
+          echo "===== build/allure-results ====="
+          ls -R build/allure-results || true
 
-      - name: Upload Allure Report Artifact
+          echo "===== allure-history ====="
+          ls -R allure-history || true
+
+          echo "===== build/allure-report/history ====="
+          ls -R build/allure-report/history || true
+
+      - name: Verify Report
+        if: always()
+        run: |
+          test -f build/allure-report/index.html
+          echo "Report generated successfully."
+
+      - name: Upload Allure Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: build/allure-report
 
-      - name: Deploy Allure Report to GitHub Pages
+      - name: Deploy to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -81,11 +93,4 @@ jobs:
         run: |
           OWNER="${{ github.repository_owner }}"
           REPO="${{ github.event.repository.name }}"
-          REPORT_URL="https://${OWNER}.github.io/${REPO}/"
-
-          echo "✅ Allure Report generated successfully"
-          echo "📊 Report URL: ${REPORT_URL}"
-
-          echo "## Allure Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 ${REPORT_URL}" >> $GITHUB_STEP_SUMMARY
+          echo "https://${OWNER}.github.io/${REPO}/"
