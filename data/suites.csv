@@ -1,3 +1,5 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","4","shouldCreateDefaultOrder()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateDefaultOrder"
-"","32","shouldCreateOrder()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateOrder"
+"","27","shouldCreateOrderWithCustomValues()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateOrderWithCustomValues"
+"","12","shouldCreateOrder()","","2026-07-10","failed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateOrder"
+"","10","shouldCreateRefundedOrder()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateRefundedOrder"
+"","5","shouldCreateDefaultOrder()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateDefaultOrder"
