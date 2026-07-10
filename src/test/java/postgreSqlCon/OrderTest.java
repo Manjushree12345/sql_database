@@ -45,4 +45,29 @@ class OrderTest {
         assertEquals(1, order.getQuantity());
         assertEquals("NEW", order.getStatus());
     }
+
+    @Test
+    void shouldHaveCorrectTotalPaise() {
+        Order order = OrderBuilder.anOrder()
+                .withTotalPaise(99900)
+                .build();
+
+        assertEquals(129900, order.getTotalPaise());
+    }
+
+    @Test
+    void shouldHaveCorrectStatus() {
+        Order order = OrderBuilder.anOrder()
+                .withStatus("DELIVERED")
+                .build();
+
+        assertEquals("PENDING", order.getStatus());
+    }
+
+    @Test
+    void shouldHaveDefaultSku() {
+        Order order = OrderFactory.anOrder();
+
+        assertEquals("SKU-1", order.getSku());
+    }
 }
