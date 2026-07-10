@@ -95,11 +95,11 @@ jobs:
         run: |
           OWNER="${{ github.repository_owner }}"
           REPO="${{ github.event.repository.name }}"
-          REPORT_URL="https://${OWNER}.github.io/${REPO}/"
+          RUN="${{ github.run_number }}"
 
-          echo "✅ Allure Report Generated"
-          echo "📊 ${REPORT_URL}"
+          REPORT_URL="https://${OWNER}.github.io/${REPO}/${RUN}/"
+
+          echo "Latest report: ${REPORT_URL}"
 
           echo "## Allure Report" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
           echo "🔗 ${REPORT_URL}" >> $GITHUB_STEP_SUMMARY
