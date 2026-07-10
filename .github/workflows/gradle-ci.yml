@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-
   pull_request:
     branches:
       - main
@@ -12,13 +11,31 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Checkout gh-pages for History
+        if: always()
+        continue-on-error: true
+        run: |
+          git fetch origin gh-pages --depth=1
+          mkdir -p allure-history
+          git show origin/gh-pages:allure-results.zip > allure-history/results.zip 2>/dev/null || true
+          cd allure-history
+          unzip -q results.zip 2>/dev/null || true
+          cd ..
+
+      - name: Restore Previous Results
+        if: always()
+        run: |
+          if [ -d allure-history/allure-results ]; then
+            mkdir -p build/allure-results
+            cp -r allure-history/allure-results/* build/allure-results/ 2>/dev/null || true
+          fi
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -33,7 +50,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run Tests
-        run: ./gradlew clean test
+        run: ./gradlew test
 
       - name: Generate Allure Report
         if: always()
@@ -42,6 +59,12 @@ jobs:
           allure_results: build/allure-results
           allure_report: build/allure-report
           keep_reports: 20
+
+      - name: Archive Results for History
+        if: always()
+        run: |
+          cd build
+          zip -r allure-results.zip allure-results/
 
       - name: Verify Allure Report
         if: always()
@@ -64,6 +87,19 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: build/allure-report
+          cname: ""
+
+      - name: Upload Results Archive to gh-pages
+        if: always()
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git fetch origin gh-pages --depth=1
+          git checkout gh-pages
+          cp build/allure-results.zip .
+          git add allure-results.zip
+          git commit -m "Update allure results archive for trends" || true
+          git push origin gh-pages
 
       - name: Report Link
         if: always()
@@ -71,10 +107,8 @@ jobs:
           REPO_NAME="${{ github.event.repository.name }}"
           OWNER="${{ github.repository_owner }}"
           REPORT_URL="https://${OWNER}.github.io/${REPO_NAME}/"
-
           echo "✅ Allure report generated"
           echo "📊 Report URL: ${REPORT_URL}"
-
           echo "## Allure Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🔗 ${REPORT_URL}" >> $GITHUB_STEP_SUMMARY

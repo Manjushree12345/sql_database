@@ -41,6 +41,7 @@ class OrderTest {
     void shouldCreateDefaultOrder() {
         Order order = OrderFactory.anOrder();
 
+        
         assertEquals(1, order.getQuantity());
         assertEquals("NEW", order.getStatus());
     }
