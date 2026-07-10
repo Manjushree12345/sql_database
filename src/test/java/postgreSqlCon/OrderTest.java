@@ -12,7 +12,7 @@ class OrderTest {
                 .withQuantity(3)
                 .build();
 
-        assertEquals(4, order.getQuantity());
+        assertEquals(3, order.getQuantity());
     }
 
     @Test
@@ -41,7 +41,7 @@ class OrderTest {
     void shouldCreateDefaultOrder() {
         Order order = OrderFactory.anOrder();
 
-        
+
         assertEquals(1, order.getQuantity());
         assertEquals("NEW", order.getStatus());
     }
