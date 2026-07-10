@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -11,6 +12,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     permissions:
       contents: write
 
@@ -18,29 +20,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Checkout gh-pages for History
+      # Checkout gh-pages to preserve Allure history
+      - name: Checkout gh-pages
         if: always()
         continue-on-error: true
-        run: |
-          git fetch origin gh-pages --depth=1 2>/dev/null || true
-          mkdir -p allure-history
-          git show origin/gh-pages:allure-results/ > /dev/null 2>&1 && git show origin/gh-pages:allure-results/ --recurse-submodules > allure-history.tar 2>/dev/null && tar -xf allure-history.tar -C allure-history/ 2>/dev/null || true
-          # Alternative: download allure-results zip if it exists
-          git show origin/gh-pages:allure-results.zip > allure-history/results.zip 2>/dev/null || true
-          if [ -f allure-history/results.zip ]; then
-            cd allure-history && unzip -q results.zip 2>/dev/null || true && cd ..
-          fi
-
-      - name: Restore Previous Results
-        if: always()
-        run: |
-          mkdir -p build/allure-results
-          if [ -d allure-history/allure-results ]; then
-            cp -r allure-history/allure-results/* build/allure-results/ 2>/dev/null || true
-          fi
-          echo "Previous results restored: $(ls build/allure-results/ 2>/dev/null | wc -l) files"
-          echo "Content in allure-results:"
-          ls -la build/allure-results/ 2>/dev/null | head -20
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -55,7 +42,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Run Tests
-        run: ./gradlew test
+        run: ./gradlew clean test
 
       - name: Generate Allure Report
         if: always()
@@ -63,18 +50,14 @@ jobs:
         with:
           allure_results: build/allure-results
           allure_report: build/allure-report
+          gh_pages: gh-pages
+          allure_history: allure-history
           keep_reports: 20
-
-      - name: Archive Results for History
-        if: always()
-        run: |
-          cd build
-          zip -r allure-results.zip allure-results/
 
       - name: Verify Allure Report
         if: always()
         run: |
-          echo "Generated files:"
+          echo "Generated report files:"
           ls -la build/allure-report
           test -f build/allure-report/index.html
 
@@ -85,13 +68,6 @@ jobs:
           name: allure-report
           path: build/allure-report
 
-      - name: Preserve Allure Results for History
-        if: always()
-        run: |
-          mkdir -p build/allure-report/history
-          cp -r build/allure-results/* build/allure-report/history/ 2>/dev/null || true
-          echo "Results preserved for trend analysis"
-
       - name: Deploy Allure Report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -99,17 +75,17 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: build/allure-report
-          keep_files: true
-          cname: ""
 
       - name: Report Link
         if: always()
         run: |
-          REPO_NAME="${{ github.event.repository.name }}"
           OWNER="${{ github.repository_owner }}"
-          REPORT_URL="https://${OWNER}.github.io/${REPO_NAME}/"
-          echo "✅ Allure report generated"
+          REPO="${{ github.event.repository.name }}"
+          REPORT_URL="https://${OWNER}.github.io/${REPO}/"
+
+          echo "✅ Allure Report generated successfully"
           echo "📊 Report URL: ${REPORT_URL}"
+
           echo "## Allure Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "🔗 ${REPORT_URL}" >> $GITHUB_STEP_SUMMARY
