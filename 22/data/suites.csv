@@ -1,0 +1,8 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"","6","shouldHaveDefaultSku()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldHaveDefaultSku"
+"","2","shouldCreateOrderWithCustomValues()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateOrderWithCustomValues"
+"","47","shouldHaveCorrectStatus()","","2026-07-10","failed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldHaveCorrectStatus"
+"","20","shouldCreateOrder()","","2026-07-10","failed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateOrder"
+"","5","shouldCreateDefaultOrder()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateDefaultOrder"
+"","2","shouldCreateRefundedOrder()","","2026-07-10","passed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldCreateRefundedOrder"
+"","5","shouldHaveCorrectTotalPaise()","","2026-07-10","failed","2026-07-10","","postgreSqlCon.OrderTest","postgreSqlCon.OrderTest","shouldHaveCorrectTotalPaise"
