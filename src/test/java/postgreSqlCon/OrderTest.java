@@ -1,6 +1,7 @@
 package postgreSqlCon;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -89,5 +90,18 @@ class OrderTest {
                 .build();
 
         assertEquals("REFUNDED", order.getStatus());
+    }
+
+    @Disabled("BROKEN: Database connection not initialized - needs setup")
+    @Test
+    void testOrderPersistenceToDatabase() {
+        // TODO: Fix database connectivity issue
+        Order order = OrderBuilder.anOrder()
+                .withSku("SKU-PERSIST")
+                .withQuantity(5)
+                .build();
+
+        // This test requires database connection
+        // assertEquals(true, OrderRepository.save(order));
     }
 }
