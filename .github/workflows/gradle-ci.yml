@@ -22,20 +22,25 @@ jobs:
         if: always()
         continue-on-error: true
         run: |
-          git fetch origin gh-pages --depth=1
+          git fetch origin gh-pages --depth=1 2>/dev/null || true
           mkdir -p allure-history
+          git show origin/gh-pages:allure-results/ > /dev/null 2>&1 && git show origin/gh-pages:allure-results/ --recurse-submodules > allure-history.tar 2>/dev/null && tar -xf allure-history.tar -C allure-history/ 2>/dev/null || true
+          # Alternative: download allure-results zip if it exists
           git show origin/gh-pages:allure-results.zip > allure-history/results.zip 2>/dev/null || true
-          cd allure-history
-          unzip -q results.zip 2>/dev/null || true
-          cd ..
+          if [ -f allure-history/results.zip ]; then
+            cd allure-history && unzip -q results.zip 2>/dev/null || true && cd ..
+          fi
 
       - name: Restore Previous Results
         if: always()
         run: |
+          mkdir -p build/allure-results
           if [ -d allure-history/allure-results ]; then
-            mkdir -p build/allure-results
             cp -r allure-history/allure-results/* build/allure-results/ 2>/dev/null || true
           fi
+          echo "Previous results restored: $(ls build/allure-results/ 2>/dev/null | wc -l) files"
+          echo "Content in allure-results:"
+          ls -la build/allure-results/ 2>/dev/null | head -20
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -87,21 +92,15 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: build/allure-report
+          keep_files: true
           cname: ""
 
-      - name: Upload Results Archive to gh-pages
+      - name: Preserve Allure Results for History
         if: always()
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-          git fetch origin gh-pages --depth=1
-          git reset --hard HEAD
-          git clean -fd
-          git checkout -B gh-pages origin/gh-pages
-          cp build/allure-results.zip .
-          git add allure-results.zip
-          git commit -m "Update allure results archive for trends" || true
-          git push origin gh-pages
+          mkdir -p build/allure-report/allure-results
+          cp -r build/allure-results/* build/allure-report/allure-results/ 2>/dev/null || true
+          echo "Results preserved for trend analysis"
 
       - name: Report Link
         if: always()
