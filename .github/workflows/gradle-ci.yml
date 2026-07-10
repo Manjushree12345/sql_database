@@ -17,6 +17,7 @@ jobs:
       contents: write
 
     steps:
+      # Checkout repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
@@ -29,21 +30,26 @@ jobs:
           ref: gh-pages
           path: gh-pages
 
+      # Setup Java
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '22'
 
+      # Setup Gradle
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Make gradlew executable
+      # Make Gradle wrapper executable
+      - name: Make gradlew Executable
         run: chmod +x ./gradlew
 
+      # Run tests
       - name: Run Tests
         run: ./gradlew clean test
 
+      # Generate Allure Report with history
       - name: Generate Allure Report
         if: always()
         uses: simple-elf/allure-report-action@master
@@ -54,43 +60,46 @@ jobs:
           allure_history: allure-history
           keep_reports: 20
 
-      # Debug history (remove later if you want)
-      - name: Debug Allure History
+      # Verify generated report
+      - name: Verify Allure Report
         if: always()
         run: |
-          echo "===== build/allure-results ====="
-          ls -R build/allure-results || true
+          echo "===== build/allure-report ====="
+          ls -la build/allure-report
 
           echo "===== allure-history ====="
-          ls -R allure-history || true
+          ls -la allure-history
 
-          echo "===== build/allure-report/history ====="
-          ls -R build/allure-report/history || true
-
-      - name: Verify Report
-        if: always()
-        run: |
           test -f build/allure-report/index.html
-          echo "Report generated successfully."
 
-      - name: Upload Allure Report
+      # Upload report artifact
+      - name: Upload Allure Report Artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: allure-report
-          path: build/allure-report
+          path: allure-history
 
-      - name: Deploy to GitHub Pages
+      # Deploy to GitHub Pages
+      - name: Deploy Allure Report
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
-          publish_dir: build/allure-report
+          publish_dir: allure-history
 
+      # Print report URL
       - name: Report Link
         if: always()
         run: |
           OWNER="${{ github.repository_owner }}"
           REPO="${{ github.event.repository.name }}"
-          echo "https://${OWNER}.github.io/${REPO}/"
+          REPORT_URL="https://${OWNER}.github.io/${REPO}/"
+
+          echo "✅ Allure Report Generated"
+          echo "📊 ${REPORT_URL}"
+
+          echo "## Allure Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 ${REPORT_URL}" >> $GITHUB_STEP_SUMMARY
